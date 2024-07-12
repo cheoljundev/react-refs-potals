@@ -1,14 +1,21 @@
-import {useState} from "react";
+import {useRef, useState} from "react";
 
 export default function TimerChallenge({title, targetTime}) {
+    const timer = useRef();
     const [timerStarted, setTimerStarted] = useState(false);
     const [timerExpired, setTimerExpired] = useState(false);
 
-    function handleStart(targetTime) {
+    function handleStart() {
         setTimerStarted(true);
-        setTimeout(() => {
+        timer.current = setTimeout(() => {
             setTimerExpired(true);
         }, targetTime * 1000);
+    }
+
+    function handleStop() {
+        // 제어하는 값 자체가 UI와 상관이 없는 경우 useRef가 유용하다.
+        // 이 핸들러는 타이머를 종료할 뿐, UI를 업데이트하지 않는다.
+        clearTimeout(timer.current);
     }
 
     return <section className="challenge">
@@ -18,8 +25,8 @@ export default function TimerChallenge({title, targetTime}) {
             {targetTime} second{targetTime > 1 ? "s" : ""}
         </p>
         <p>
-            <button onClick={handleStart}>
-                {timerStarted ? 'Stop' : 'Start'}
+            <button onClick={timerStarted ? handleStop : handleStart}>
+                {timerStarted ? 'Stop' : 'Start'} Challenge
             </button>
         </p>
         <p className={timerStarted ? 'active' : undefined}>
